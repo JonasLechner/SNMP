@@ -8,18 +8,57 @@ import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.regex.Pattern;
+
 public class Test {
     public static final String READ_COMMUNITY = "public";
     public static final String OID_SYS_DESCR="1.3.6.1.2.1.1.5.0";
     public static void main(String[] args) {
         try {
-            String strIPAddress = "192.168.178.38";
+            String strIPAddress = "192.168.178.35";
             Test objSNMP = new Test();
-            String antwort =objSNMP.snmpGet(strIPAddress,READ_COMMUNITY,OID_SYS_DESCR);
+            //String antwort =objSNMP.snmpGet(strIPAddress,READ_COMMUNITY,OID_SYS_DESCR);
+            objSNMP.getNetwork();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
+
+    public void getNetwork(){
+
+
+        InetAddress localhost = null;
+        try {
+            localhost= InetAddress.getByName("192.168.178.38");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("local"+ localhost);
+        byte[] ip = localhost.getAddress();
+
+        for (int i = 1; i <= 254; i++) {
+            try {
+                ip[3] = (byte) i;
+                InetAddress address = InetAddress.getByAddress(ip);
+
+                if (address.isReachable(100)) {
+                    String output = address.toString().substring(1);
+
+                    snmpGet(output,READ_COMMUNITY,OID_SYS_DESCR);
+                    System.out.print(output + " is on the network");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
     public String snmpGet(String strAddress, String community, String strOID) {
         String antwort="";
@@ -51,14 +90,19 @@ public class Test {
 
             if(response != null) {
 
-                if(response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
-                    PDU pduresponse=response.getResponse();
-                    antwort=pduresponse.getVariableBindings().firstElement().toString();
-                    if(antwort.contains("=")) {
-                        int len = antwort.indexOf("=");
-                        antwort=antwort.substring(len+1, antwort.length());
+                try {
+                    if(response.getResponse().getErrorStatusText().equalsIgnoreCase("Success")) {
+                        PDU pduresponse=response.getResponse();
+                        antwort=pduresponse.getVariableBindings().firstElement().toString();
+                        if(antwort.contains("=")) {
+                            int len = antwort.indexOf("=");
+                            antwort=antwort.substring(len+1, antwort.length());
+                        }
                     }
+                }catch (Exception e){
+                    System.out.println("Fehler");
                 }
+
             } else {
                 System.out.println("Feeling like a TimeOut occured ");
             }
@@ -67,5 +111,7 @@ public class Test {
         System.out.println("Response="+antwort);
         return antwort;
     }
+
+
 
 }
