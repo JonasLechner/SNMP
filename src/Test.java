@@ -10,7 +10,7 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Test {
@@ -18,10 +18,21 @@ public class Test {
     public static final String OID_SYS_DESCR="1.3.6.1.2.1.1.5.0";
     public static void main(String[] args) {
         try {
-            String strIPAddress = "192.168.178.35";
+
+
+            String strIPAddress = "192.168.178.38";
             Test objSNMP = new Test();
-            //String antwort =objSNMP.snmpGet(strIPAddress,READ_COMMUNITY,OID_SYS_DESCR);
-            objSNMP.getNetwork();
+
+            while (true){
+                System.out.println("Was moechtest du machen? get: sysname eines Gerätes bekommen! scan: ganzes Netzwerk scannen!");
+                Scanner eingabe=new Scanner(System.in);
+                String benutzerEingabe=eingabe.nextLine();
+                if (benutzerEingabe.equals("get")){
+                    String antwort =objSNMP.snmpGet(strIPAddress,READ_COMMUNITY,OID_SYS_DESCR);
+                } else if(benutzerEingabe.equals("scan")){
+                    objSNMP.getNetwork();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -29,34 +40,24 @@ public class Test {
     }
 
     public void getNetwork(){
-
-
-        InetAddress localhost = null;
-        try {
-            localhost= InetAddress.getByName("192.168.178.38");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("local"+ localhost);
-        byte[] ip = localhost.getAddress();
-
-        for (int i = 1; i <= 254; i++) {
+        String network="192.168.178.0";
+        String[] parts = network.split(Pattern.quote("."));
+        String test;
+        for (Integer i=0; i<256; ++i){
+            parts[3]= i.toString();
+            test="192.168.178.";
+            test=test.concat(parts[3]);
             try {
-                ip[3] = (byte) i;
-                InetAddress address = InetAddress.getByAddress(ip);
-
-                if (address.isReachable(100)) {
+                InetAddress address = InetAddress.getByName(test);
+                if (address.isReachable(1000)) {
                     String output = address.toString().substring(1);
-
+                    System.out.print("Die Adresse: "+output + " ist im Netzwerk!");
                     snmpGet(output,READ_COMMUNITY,OID_SYS_DESCR);
-                    System.out.print(output + " is on the network");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
 
@@ -86,7 +87,6 @@ public class Test {
             pdu.setType(PDU.GET);
             snmp = new Snmp(transport);
             response = snmp.get(pdu,comtarget);
-            System.out.println( "response:" + response);
 
             if(response != null) {
 
@@ -99,8 +99,9 @@ public class Test {
                             antwort=antwort.substring(len+1, antwort.length());
                         }
                     }
+                    System.out.println(" Der Name dieses Gerätes ist="+antwort);
                 }catch (Exception e){
-                    System.out.println("Fehler");
+                    System.err.println(" Diese IP unterstüzt SNMP nicht!");
                 }
 
             } else {
@@ -108,10 +109,6 @@ public class Test {
             }
             snmp.close();
         } catch(Exception e) { e.printStackTrace(); }
-        System.out.println("Response="+antwort);
         return antwort;
     }
-
-
-
 }
