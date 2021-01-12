@@ -2,6 +2,8 @@
   <library name="lib">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/lib" />
+      <root url="jar://$PROJECT_DIR$/../../../../rotze/snmp6_1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../rotze/mibble-2.10.1/mibble-2.10.1/MibbleBrowser.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
