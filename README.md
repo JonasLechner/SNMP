@@ -1,25 +1,18 @@
 # SNMP
-Mein Programm hat bis jetzt die Funktion snmpGet.  
-Mit dieser Funktion bekommt man mit einer IP und einer OID eine Information vom PC. In meinem Programm habe ich zum testen die OID von SysName genommen.
+Mein Programm soll die wichtigsten Funktionen von SNMP ausführen können.
 
-Geplant:
+Seit dem letzten Commit habe ich folgende Änderungen gemacht:
+- Änderungen des Community-Strings werden ünterstützt
+- Benutzereingaben wurden hinzugefügt
+- Funktion die mit Hilfe von Mib-Files Namen von OIDs in OIDs umwandelt
+- Ausgabe von OIDs einer Mib-File
+
+erledigt:
 - Benutzereingaben(Zum Schluss da sonst testen aufwendig ist)
-- snmpSet
-- ReadME verbessern
 - Änderungen Community String unterstützen
-
-Eventuell auch geplant:
-- MIB
-- Traps oder Informs empfangen
+- Snmp-Information einer IP mit OID oder Name der OID bekommen
 - ganzes Netzwerk scannen
-- ansprechendes User-Interface
+- Mib-Files auslesen
 
-next Steps:
-- Traps oder Informs empfangen
-- MIB(zumindest versuchen)
-
-funktionierende Funktionen:
-- SNMPget
-- ganzes Netzwerk scannen
 
 Um das Programm zu starten muss man in der CMD zu den Ordner navigieren und dann die Jar mit java -jar dateiname.jar ausführen
